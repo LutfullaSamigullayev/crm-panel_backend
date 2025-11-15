@@ -2,8 +2,8 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/db.js";
 
 export class Bot extends Model {
-  full_name!: string;
-  phone_number!: string;
+  first_name!: string;
+  phone_number?: string;
   message!: string;
 }
 
@@ -14,13 +14,14 @@ Bot.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    full_name: {
+    first_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     phone_number: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: null
     },
     message: {
       type: DataTypes.STRING,
