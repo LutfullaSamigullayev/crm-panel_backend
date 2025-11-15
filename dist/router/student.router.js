@@ -3,7 +3,7 @@ import { addStudent, deleteStudent, getAllStudents, updateStudent } from "../con
 const studentRouter = Router();
 studentRouter.get("/get_all_students", getAllStudents);
 studentRouter.post("/add_student", addStudent);
-studentRouter.put("/update_student", updateStudent);
-studentRouter.delete("/delete_student", deleteStudent);
+studentRouter.put("/update_student/:id", updateStudent);
+studentRouter.delete("/delete_student/:id", deleteStudent);
 export default studentRouter;
 //# sourceMappingURL=student.router.js.map

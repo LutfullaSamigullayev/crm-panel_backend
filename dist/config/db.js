@@ -4,10 +4,11 @@ dotenv.config();
 const sequelize = new Sequelize({
     dialect: "postgres",
     host: "localhost",
+    username: "postgres",
     port: 5432,
     password: String(process.env.DB_PASSWORD),
     database: String(process.env.DB_DATABASE),
-    logging: false
+    logging: false,
 });
 sequelize.authenticate().then(() => console.log("Connected to DB")).catch((error) => console.log(error.message));
 sequelize.sync({ force: false });
