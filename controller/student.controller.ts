@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { Student } from "../model/student.model.js";
 import type { AddStudentDto, UpdateStudentDto } from "../dto/student.dto.js";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
+import sequelize from "../config/db.js";
+
+Student.sync({force: false})
 
 export const getAllStudents = async (
   req: Request,
@@ -39,10 +42,30 @@ export const getAllStudents = async (
 
     res.status(200).json({
       totalPage,
-      prev: page > 1 ? {page: page - 1, limit} : undefined,
-      next: totalPage > page ? {page: page + 1, limit} : undefined,
+      prev: page > 1 ? { page: page - 1, limit } : undefined,
+      next: totalPage > page ? { page: page + 1, limit } : undefined,
       students,
     });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getStudentsStatistics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  try {
+    const statistics = await Student.findAll({where: {
+      attribute: [
+        [sequelize.literal(`DATE_TRUNC('month', 'joined_at')`), "month"],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'total_joined'],
+        [sequelize.literal(`SUM(CASE WHEN 'left_at' IS NOT NULL THEN 1 ELSE 0 END)`), 'total_left']
+      ],
+      group: [sequelize.literal(`DATE_TRUNC('month', 'joined_at')`)],
+      order: [sequelize.literal(`DATE_TRUNC('month', joined_at)`), 'ASC'] as any
+    }})
   } catch (error: any) {
     next(error);
   }
@@ -70,6 +93,7 @@ export const addStudent = async (
       parent_name,
       parent_number,
       img_url,
+      joined_at: new Date(),
     });
 
     res.status(201).json({ message: "Added new student" });
@@ -77,6 +101,7 @@ export const addStudent = async (
     next(error);
   }
 };
+
 export const updateStudent = async (
   req: Request,
   res: Response,
@@ -116,6 +141,29 @@ export const updateStudent = async (
     next(error);
   }
 };
+
+export const leftStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+
+    const foundedStudent = await Student.findByPk(id);
+
+    if (!foundedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    await Student.update({left_at: new Date()}, { where: { id } });
+
+    res.status(201).json({ message: "Left student" });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const deleteStudent = async (
   req: Request,
   res: Response,
