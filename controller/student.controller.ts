@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { Student } from "../model/student.model.js";
 import type { AddStudentDto, UpdateStudentDto } from "../dto/student.dto.js";
-import { Op, Sequelize } from "sequelize";
+import { Op } from "sequelize";
 import sequelize from "../config/db.js";
 
 Student.sync({force: false})
